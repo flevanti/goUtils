@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime"
 	"time"
+	"errors"
 )
 
 func GetTimestampNano() int64 {
@@ -25,7 +26,7 @@ func PrintMemUsage(context string) {
 	runtime.ReadMemStats(&m)
 	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
 	fmt.Printf("MiB usage malloc %v  tot malloc %v  Sys %v  GC %v  (%s)\n",
-		b2KiB(m.Alloc), b2KiB(m.TotalAlloc), b2KiB(m.Sys), m.NumGC, context)
+		Bit2KiB(m.Alloc), Bit2KiB(m.TotalAlloc), Bit2KiB(m.Sys), m.NumGC, context)
 }
 
 func GetMemAlloc() uint64 {
@@ -46,17 +47,17 @@ func Bit2KiB(b uint64) uint64 {
 }
 
 // readFileContent .
-func ReadFileContent(filename string) string {
+func ReadFileContent(filename string) (string, error) {
 	var content []byte
 	var err error
 	if FileExists(filename) {
 		content, err = ioutil.ReadFile(filename)
 		if err != nil {
 			fmt.Printf("Unable to find file to load %s\n", filename)
-			return "{}"
+			return "", errors.New("read file content failed")
 		}
 	}
-	return string(content)
+	return string(content), nil
 }
 
 // fileExists
